@@ -32,6 +32,20 @@ public class SqlInjectionAdvancedUITest extends PlaywrightTest {
     lessonPage.open(lessonName);
   }
 
+  /**
+   * Retrieves Tom's password from environment variable.
+   * Falls back to the test database value if not set.
+   * Set WEBGOAT_TOM_PASSWORD environment variable to override.
+   */
+  private static String getTomPassword() {
+    String password = System.getenv("WEBGOAT_TOM_PASSWORD");
+    if (password == null || password.isEmpty()) {
+      // Fallback to test database default - should only be used in isolated test environments
+      password = "thisisasecretfortomonly";
+    }
+    return password;
+  }
+
   @Test
   @DisplayName("Login as Tom with incorrect password")
   void loginAsTomWithIncorrectPassword() {
@@ -53,7 +67,7 @@ public class SqlInjectionAdvancedUITest extends PlaywrightTest {
     var page = lessonPage.getPage();
     page.getByRole(AriaRole.LINK, new GetByRoleOptions().setName("Login")).click();
     page.locator("[name='username_login']").fill("tom");
-    page.locator("[name='password_login']").fill("thisisasecretfortomonly");
+    page.locator("[name='password_login']").fill(getTomPassword());
     page.getByRole(AriaRole.BUTTON, new GetByRoleOptions().setName("Log In")).click();
 
     lessonPage.isAssignmentSolved(5);
