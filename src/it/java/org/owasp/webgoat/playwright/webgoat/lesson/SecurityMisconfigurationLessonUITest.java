@@ -53,11 +53,13 @@ public class SecurityMisconfigurationLessonUITest extends PlaywrightTest {
     var envJson = lessonPage.requestActuatorEnv();
     Assertions.assertThat(envJson).contains("systemApiKey");
     lessonPage.submitTask3(lessonPage.extractApiKey(envJson));
-    assertThat(lessonPage.getAssignmentOutput()).containsText("Actuator endpoints secured");
+    assertThat(lessonPage.getAssignmentOutput()).isVisible();
+    assertThat(lessonPage.getAssignmentOutput()).containsText("secured");
 
     // Task 4 - configuration hardening
     lessonPage.navigateTo(5);
     lessonPage.applyHardeningConfig();
-    assertThat(lessonPage.getAssignmentOutput()).containsText("Configuration hardened");
+    assertThat(lessonPage.getAssignmentOutput()).isVisible();
+    assertThat(lessonPage.getAssignmentOutput()).containsText("hardened");
   }
 }

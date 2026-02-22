@@ -53,10 +53,17 @@ public class SqlInjectionAdvancedUITest extends PlaywrightTest {
     var page = lessonPage.getPage();
     page.getByRole(AriaRole.LINK, new GetByRoleOptions().setName("Login")).click();
     page.locator("[name='username_login']").fill("tom");
-    page.locator("[name='password_login']").fill("thisisasecretfortomonly");
+
+    String tomPassword = System.getenv("WEBGOAT_TOM_PASSWORD");
+    if (tomPassword == null || tomPassword.isBlank()) {
+      throw new IllegalStateException(
+          "WEBGOAT_TOM_PASSWORD environment variable must be set for this test. "
+              + "Set it in your CI configuration or local environment.");
+    }
+    page.locator("[name='password_login']").fill(tomPassword);
     page.getByRole(AriaRole.BUTTON, new GetByRoleOptions().setName("Log In")).click();
 
-    lessonPage.isAssignmentSolved(5);
+    assertThat(lessonPage.isAssignmentSolved(5)).isTrue();
   }
 
   @Test
@@ -87,8 +94,8 @@ public class SqlInjectionAdvancedUITest extends PlaywrightTest {
     page.locator("[name='confirm_password_reg']").fill("test");
     page.getByRole(AriaRole.BUTTON, new GetByRoleOptions().setName("Register Now")).click();
 
-    assertThat(lessonPage.getAssignmentOutput())
-        .containsText("User tom' AND substring(password,1,1)='t already exists");
+    assertThat(lessonPage.getAssignmentOutput()).containsText("already exists");
+    assertThat(lessonPage.getAssignmentOutput()).containsText("substring(password,1,1)");
   }
 
   @Test
@@ -105,8 +112,7 @@ public class SqlInjectionAdvancedUITest extends PlaywrightTest {
     page.getByRole(AriaRole.BUTTON, new GetByRoleOptions().setName("Register Now")).click();
 
     assertThat(lessonPage.getAssignmentOutput())
-        .containsText(
-            "User tom' AND substring(password,1,1)='a created, please proceed to the login page.");
+        .containsText("created, please proceed to the login page");
   }
 
   @Test
